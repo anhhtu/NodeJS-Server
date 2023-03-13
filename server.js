@@ -1,16 +1,26 @@
-var express = require('express');
-var app = express();
-var PORT = 3000;
-const httpServer = require("http").createServer(app);
-const options = { /* ... */ };
-const io = require("socket.io")(httpServer, options);
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 
-io.on("connection", socket => { /* ... */ });
+const httpServer = createServer(function (req, res) {
+    res.write('Hello World!'); //write a response to the client
+    res.end(); //end the response
+});
+const io = new Server(httpServer, { /* options */ });
 
-app.get('/', function(req, res) {
-    res.status(200).send('Hello world');
+io.on("connection", (socket) => {
+    console.log('Ket noi');
+      socket.on('sendMessage', (data) => {
+        console.log(data, 'Du lieu nhan tu client');
+        io.emit('sendMessageServer', "gui du lieu cho client")
+      })
+      socket.on('vote1', (data) => {
+        io.emit('vote1', data)
+      })
+      socket.on('vote2', (data) => {
+        io.emit('vote2', data)
+      })
 });
 
-app.listen(PORT, function() {
-    console.log('Server is running on PORT:',PORT);
+httpServer.listen(3000, () => {
+    console.log('server started and listening on port ')
 });
